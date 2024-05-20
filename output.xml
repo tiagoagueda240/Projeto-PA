@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plano>
+	<FUC>
+		<avaliacao>
+			<ComponenteAvaliacao nome="Quizzes" peso="20"/>
+			<ComponenteAvaliacao nome="Projeto" peso="80"/>
+		</avaliacao>
+	</FUC>
+	<FUC>
+		<avaliacao>
+			<ComponenteAvaliacao nome="Quizzes" peso="20"/>
+			<ComponenteAvaliacao nome="Projeto" peso="80"/>
+		</avaliacao>
+	</FUC>
+</plano>
