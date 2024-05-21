@@ -2,7 +2,7 @@
 
 ## Descrição do Projeto
 
-Esta biblioteca foi desenvolvida como parte do Projeto de Programação Avançada 2023/2024 e tem como objetivo fornecer uma API para a geração e manipulação de documentos XML em Kotlin. A biblioteca permite criar, manipular e exportar documentos XML, abrangendo os elementos essenciais como documentos, entidades (tags), texto aninhado, entidades aninhadas e atributos.
+Esta biblioteca foi desenvolvida como parte do Projeto de Programação Avançada 2023/2024 e tem como objetivo fornecer uma API para a geração e manipulação de documentos XML em Kotlin. A biblioteca permite criar, manipular e exportar documentos XML, abrangendo os elementos essenciais como documentos, entidades (tags), entidades e atributos.
 
 ## Funcionalidades
 
