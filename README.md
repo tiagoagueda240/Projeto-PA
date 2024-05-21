@@ -23,7 +23,7 @@ As classes da biblioteca permitem as seguintes operações:
 
 ### Micro-XPath
 
-A biblioteca permite interrogar o documento com expressões XPath simples, compostas por uma sequência de nomes de entidades.
+A biblioteca permite pesquisar no documento com expressões XPath simples, compostas por uma sequência de nomes de entidades.
 
 ### Mapeamento Classes-XML
 
