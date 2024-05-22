@@ -1,95 +1,125 @@
 import org.junit.*
 import org.junit.Assert.*
 
+
+
 class TestFileCompose {
-    @Test
-    fun testAddAndRemoveEntity() {
-        val document = Document()
-        val entity = Entity("testEntity")
 
-        document.rootEntity.addChild(entity)
-        assertEquals(1, document.rootEntity.getChildren().size)
+    object AddPercentage : StringTransformer {
+        override fun transform(value: Any?): String {
+            return value.toString() + "%"
+        }
+    }
 
-        val entityRemoverVisitor = EntityRemoverVisitor("testEntity")
-        document.rootEntity.acceptVisitor(entityRemoverVisitor)
-        assertEquals(0, document.rootEntity.getChildren().size)
+    // Classe ComponenteAvaliacao
+    @XmlAdapter(OrderedAttributes::class)
+    class ComponenteAvaliacao(
+        /*@XmlId("")*/@XmlBuild(AddAsAttribute::class) val nome: String,
+        @XmlId("Tiago") @XmlString(AddPercentage::class) @XmlBuild(AddAsAttribute::class) val peso: Int
+    )
+
+    // Classe FUC
+    @XmlAdapter(FUCRename::class)
+    class FUC(
+        @XmlBuild(AddAsAttribute::class) val codigo: String,
+        @XmlBuild(AddAsContent::class) val nome: String,
+        @XmlBuild(AddAsContent::class) val ects: Double,
+        val observacoes: String,
+        val avaliacao: List<ComponenteAvaliacao>
+    )
+
+    object FUCRename : XmlEntityAdapter {
+        override fun adapt(entity: Entity) {
+            entity.rename("FUC2")
+        }
+    }
+
+    object FUCOrdered : XmlEntityAdapter {
+        override fun adapt(entity: Entity) {
+            val sortedChildren = entity.getChildren().sortedByDescending { it.name }
+            entity.clearChildren()
+            sortedChildren.forEach { entity.addChild(it) }
+        }
+    }
+
+    object OrderedAttributes : XmlEntityAdapter {
+        override fun adapt(entity: Entity) {
+            val sortedAttributes = entity.getAttributes().sortedByDescending { it.name }
+            entity.clearAttributes()
+            sortedAttributes.forEach { entity.addAttributeAsObject(it) }
+        }
+    }
+
+
+    private fun createDocumentWithEntities(): Document {
+        val tab = Document("Plano") {
+
+            tag(FUC("123","123",123.0,"123",  listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80))))
+
+            tag(FUC("123","123",123.0,"123",  listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80))))
+
+            tag(FUC("123","123",123.0,"123",  listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80))))
+
+        }
+
+        return tab
     }
 
     @Test
-    fun testAddRemoveAndModifyAttributes() {
-        val document = Document()
-        val entity = Entity("testEntity")
-        document.rootEntity.addChild(entity)
-
-        val attributeAdderVisitor = AttributeAdderVisitor("testEntity", "testAttribute", "value")
-        document.rootEntity.acceptVisitor(attributeAdderVisitor)
-        assertEquals("value", entity.getAttributeByName("testAttribute")?.value)
-
-        val attributeRemoverVisitor = AttributeRemoverVisitor("testEntity", "testAttribute")
-        document.rootEntity.acceptVisitor(attributeRemoverVisitor)
-        assertNull(entity.getAttributeByName("testAttribute"))
-
-        val attributeAdderVisitor2 = AttributeAdderVisitor("testEntity", "testAttribute", "value")
-        document.rootEntity.acceptVisitor(attributeAdderVisitor2)
-        val attribute = entity.getAttributeByName("testAttribute")
-        attribute?.value = "modifiedValue"
-        assertEquals("modifiedValue", entity.getAttributeByName("testAttribute")?.value)
+    fun testAddEntity() {
+        val document = createDocumentWithEntities()
+        assertEquals(3, document.rootEntity.getChildren().size)
+        assertEquals("FUC2", document.rootEntity.getChildren()[0].name)
     }
 
     @Test
-    fun testAccessParentAndChildEntities() {
-        val document = Document()
-        val parentEntity = Entity("parentEntity")
-        val childEntity = Entity("childEntity")
-
-        parentEntity.addChild(childEntity)
-        document.rootEntity.addChild(parentEntity)
-
-        assertEquals("parentEntity", childEntity.parentEntity?.name)
-        assertEquals("childEntity", parentEntity.getChildren()[0].name)
+    fun testRemoveEntity() {
+        val document = createDocumentWithEntities()
+        document.removeEntity("FUC")
+        assertEquals(3, document.rootEntity.getChildren().size)
     }
 
     @Test
-    fun testAttributeAddingVisitor() {
-        val document = Document()
-        val entity = Entity("curso")
-        val visitor = AttributeAdderVisitor("curso", "novo_atributo", "valor_do_atributo")
-
-        document.rootEntity.addChild(entity)
-        entity.acceptVisitor(visitor)
-
-        val addedAttribute = entity.getAttributes().find { it.name == "novo_atributo" }
-        assertEquals("valor_do_atributo", addedAttribute?.value)
+    fun testAddAttribute() {
+        val document = createDocumentWithEntities()
+        val fucEntity = Entity("FUC")
+        fucEntity.addAttribute("codigo", "M4310")
+        document.rootEntity.addChild(fucEntity)
+        assertEquals(1, fucEntity.getAttributes().size)
+        assertEquals("codigo", fucEntity.getAttributes()[0].name)
+        assertEquals("M4310", fucEntity.getAttributes()[0].value)
     }
 
     @Test
-    fun testRenamingEntitiesVisitor() {
-        val documento = Document()
-        val curso = Entity("curso").apply { addContent("Mestrado em Engenharia Informática") }
-        documento.rootEntity.addChild(curso)
-
-        val entityRenamerVisitor = EntityRenamerVisitor("curso", "curso_novo")
-
-        documento.rootEntity.acceptVisitor(entityRenamerVisitor)
-
-        val renamedEntity = documento.rootEntity.getChildren().firstOrNull()
-
-        assertEquals("curso_novo", renamedEntity?.name)
+    fun testRemoveAttribute() {
+        val document = createDocumentWithEntities()
+        val fucEntity = Entity("FUC")
+        fucEntity.addAttribute("codigo", "M4310")
+        document.rootEntity.addChild(fucEntity)
+        document.removeAttribute("FUC", "codigo")
+        assertTrue(fucEntity.getAttributes().isEmpty())
     }
 
     @Test
-    fun testRenamingAttributesVisitor() {
-        val documento = Document()
-        val entity = Entity("test_entity")
-        entity.addAttribute("old_attribute", "old_value")
-        documento.rootEntity.addChild(entity)
-
-        val visitor = AttributeRenamerVisitor("test_entity", "old_attribute", "new_attribute")
-        documento.rootEntity.acceptVisitor(visitor)
-
-        val renamedAttribute = documento.rootEntity.getChildren()[0].getAttributeByName("new_attribute")
-
-        assertEquals("old_value", renamedAttribute?.value)
+    fun testPrettyPrint() {
+        val document = createDocumentWithEntities()
+        println(document.prettyPrint())
     }
+
+    @Test
+    fun testXPathQueryForComponenteAvaliacao() {
+        val document = createDocumentWithEntities()
+        val visitor = XPathPrintVisitor()
+        document.xpath("Plano/FUC2/avaliacao/ComponenteAvaliacao")
+    }
+
+
+
 
 }
