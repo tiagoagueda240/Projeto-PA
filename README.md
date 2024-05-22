@@ -51,6 +51,30 @@ println(documento.prettyPrint())
 documento.writeToFile("output.xml")
 ```
 
+
+// Exemplo de como instânciar entidades XML a partir de objetos
+
+```kotlin
+@XmlAdapter(FUCRename::class)
+class FUC(
+    @XmlBuild(AddAsAttribute::class) val codigo: String,
+    @XmlBuild(AddAsContent::class) val nome: String,
+    @XmlBuild(AddAsContent::class) val ects: Double,
+    @ExcludeAttribute() val observacoes: String,
+    val avaliacao: List<ComponenteAvaliacao>
+)
+```
+
+// Exemplo de como renomear entidades XML
+
+```kotlin
+    object FUCRename : XmlEntityAdapter {
+        override fun adapt(entity: Entity) {
+            entity.rename("FUC2")
+        }
+    }
+```
+
 ### Anotações Disponíveis
 @XmlAdapter
 Especifica um adaptador para a entidade.
