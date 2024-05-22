@@ -58,17 +58,16 @@ Especifica um adaptador para a entidade.
 @XmlString
 Especifica um transformador de string para atributos.
 
-@XmlElementName
-Especifica o nome do elemento XML para propriedades.
-
-@XmlAttribute
-Marca uma propriedade como atributo XML.
-
-@XmlContent
-Marca uma propriedade como conteúdo XML.
-
 @XmlBuild
 Especifica um adaptador para a construção de uma propriedade XML.
+
+@XmlId
+Especifica o nome do identificador do elemento XML.
+
+@ExcludeAttribute
+Exclui atributo de elemento XML.
+
+
 
 Transformadores de String
 DefaultStringTransformer
